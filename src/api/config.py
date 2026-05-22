@@ -15,8 +15,8 @@ class Config(BaseEnvConfig):
         ALLOW_HEADERS: List of allowed HTTP headers for CORS. Defaults to allowing all headers
     """
 
-    API_HOST: str = "0.0.0.0"
-    API_PORT: int = 8000
+    API_HOST: str
+    API_PORT: int
     ALLOW_ORIGINS: list[str] = ["http://localhost:3000"]
     ALLOW_METHODS: list[str] = ["GET", "POST"]
     ALLOW_CREDENTIALS: bool = True

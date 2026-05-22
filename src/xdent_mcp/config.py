@@ -11,5 +11,5 @@ class Config(BaseEnvConfig):
         MCP_PORT: TCP port the MCP server listens on.
     """
 
-    MCP_HOST: str = "0.0.0.0"
-    MCP_PORT: int = 8001
+    MCP_HOST: str
+    MCP_PORT: int
