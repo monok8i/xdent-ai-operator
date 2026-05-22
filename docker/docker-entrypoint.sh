@@ -18,5 +18,5 @@ echo "✓ Embedding model snapshot is ready"
 
 echo "Starting FastAPI server..."
 
-# Start the FastAPI application with Uvicorn
-python main.py
+# Start the FastAPI application entrypoint
+exec python main.py api

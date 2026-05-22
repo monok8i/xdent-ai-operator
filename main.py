@@ -1,54 +1,41 @@
-"""Application entry point for the FastAPI backend.
+"""Application entry point dispatcher for API and MCP servers."""
 
-This module bootstraps the server, installs signal handlers, and manages
-startup and shutdown for the async runtime.
-"""
-
+import argparse
 import asyncio
 import contextlib
-import signal
-
-from src.setup import create_api_server
-from src.utils.logging.setup import setup_logging, stop_logging
 
 
-async def main() -> None:
-    """Start the API server and keep it running until shutdown.
+async def dispatch(server_type: str) -> None:
+    """Start the requested server and keep it running until shutdown."""
 
-    Returns:
-        Nothing. The coroutine runs the server until a shutdown signal is
-        received.
-    """
-    # Set up logging
-    logger = setup_logging()
-    # Create API Server
-    server = create_api_server()
-    server_task = asyncio.create_task(server.serve())
+    if server_type == "api":
+        from src.api.setup import run_api_server
 
-    loop = asyncio.get_running_loop()
+        await run_api_server()
+        return
 
-    def shutdown() -> None:
-        """Request a graceful server shutdown from the signal handler."""
+    if server_type == "mcp":
+        from src.xdent_mcp.setup import run_mcp_server
 
-        logger.info("Shutdown signal received. Stopping the server...")
-        server.should_exit = True
+        await run_mcp_server()
+        return
 
-    # Register signal handlers
-    for sig in (signal.SIGTERM, signal.SIGINT):
-        loop.add_signal_handler(sig, shutdown)
+    raise ValueError(f"Unsupported server type: {server_type}")
 
-    try:
-        await server_task
-    except asyncio.CancelledError:
-        logger.info("Server task was cancelled.")
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
-    finally:
-        # Cleanup resources
-        logger.info("API has been stopped.")
-        stop_logging()
+
+def parse_args() -> argparse.Namespace:
+    """Parse CLI arguments for selecting the server type."""
+
+    parser = argparse.ArgumentParser(description="Start the API or MCP server.")
+    parser.add_argument(
+        "server_type",
+        choices=("api", "mcp"),
+        help="Which server to start.",
+    )
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
+    args = parse_args()
     with contextlib.suppress(KeyboardInterrupt):
-        asyncio.run(main())
+        asyncio.run(dispatch(args.server_type))

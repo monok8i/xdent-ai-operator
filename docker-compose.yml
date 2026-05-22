@@ -4,12 +4,12 @@ networks:
     driver: bridge
 
 services:
-  xdent-backend:
-    image: xdent-backend:latest
-    container_name: xdent-backend
+  xdent-api:
+    image: xdent-api:latest
+    container_name: xdent-api
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: api.Dockerfile
     restart: no
     env_file:
       - .env
@@ -33,12 +33,42 @@ services:
       - xdent-network
 
     depends_on:
-      xdent-backend-db:
+      xdent-db:
         condition: service_healthy
 
-  xdent-backend-db:
+  xdent-mcp:
+    image: xdent-mcp:latest
+    container_name: xdent-mcp
+    build:
+      context: .
+      dockerfile: mcp.Dockerfile
+    restart: no
+    env_file:
+      - .env
+
+    environment:
+      HF_TOKEN: ${HF_TOKEN}
+      HF_HUB_DISABLE_XET: "1"
+      HF_HOME: /root/.cache/huggingface
+
+    ports:
+      - "${MCP_PORT:-8001}:8001"
+
+    volumes:
+      - ./src/:/app/src/
+      - ./main.py:/app/main.py
+      - huggingface-cache:/root/.cache/huggingface
+
+    networks:
+      - xdent-network
+
+    depends_on:
+      xdent-db:
+        condition: service_healthy
+
+  xdent-db:
     image: pgvector/pgvector:0.6.0-pg16
-    container_name: xdent-backend-db
+    container_name: xdent-db
     restart: no
     env_file:
       - .env

@@ -10,6 +10,7 @@ from functools import cached_property
 from src.infra.embeddings.config import Config as EmbeddingsConfig
 from src.infra.db.config import Config as DBConfig
 from src.api.config import Config as APIConfig
+from src.xdent_mcp.config import Config as MCPConfig
 
 
 class Config:
@@ -27,6 +28,15 @@ class Config:
             API configuration object.
         """
         return APIConfig()  # type: ignore
+
+    @cached_property
+    def mcp(self) -> MCPConfig:
+        """Return the configuration used by the FastMCP server.
+
+        Returns:
+            MCP configuration object.
+        """
+        return MCPConfig()  # type: ignore
 
     @cached_property
     def embeddings(self) -> EmbeddingsConfig:
