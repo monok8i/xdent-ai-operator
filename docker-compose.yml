@@ -1,0 +1,59 @@
+networks:
+  xdent-network:
+    name: xdent-network
+    driver: bridge
+
+services:
+  xdent-backend:
+    image: xdent-backend:latest
+    container_name: backend
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: no
+    env_file:
+      - .env
+
+    environment:
+      HF_TOKEN: ${HF_TOKEN}
+      HF_HUB_DISABLE_XET: "1"
+      HF_HOME: /root/.cache/huggingface
+
+    ports:
+      - "${API_PORT}:${API_PORT}"
+
+    volumes:
+      - ./src/:/app/src/
+      - ./main.py:/app/main.py
+      - ./alembic.ini:/app/alembic.ini
+      - ./migrations/:/app/migrations/
+      - huggingface-cache:/root/.cache/huggingface
+
+    networks:
+      - xdent-network
+
+    depends_on:
+      xdent-backend-db:
+        condition: service_healthy
+
+  xdent-backend-db:
+    image: pgvector/pgvector:0.6.0-pg16
+    container_name: xdent-backend-db
+    restart: no
+    env_file:
+      - .env
+
+    ports:
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready --username=${POSTGRES_USER} --dbname=${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+    networks:
+      - xdent-network
+
+volumes:
+  huggingface-cache:

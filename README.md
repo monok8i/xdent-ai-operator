@@ -1,1 +1,1 @@
-# xdent-ai-operator
+# XDent RAG system
