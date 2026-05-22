@@ -6,7 +6,7 @@ networks:
 services:
   xdent-backend:
     image: xdent-backend:latest
-    container_name: backend
+    container_name: xdent-backend
     build:
       context: .
       dockerfile: Dockerfile

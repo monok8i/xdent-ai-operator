@@ -28,7 +28,19 @@ from src.infra.db.session import get_async_session
 from src.infra.embeddings.client import SentenceTransformerEmbeddingClient
 
 
-DEFAULT_DATA_DIR = Path(__file__).resolve().parents[1] / "src" / "utils" / "data"
+def resolve_default_data_dir() -> Path:
+    """Return the repository's bundled transcript data directory."""
+
+    script_path = Path(__file__).resolve()
+    for parent in (script_path.parent, *script_path.parents):
+        candidate = parent / "src" / "utils" / "data"
+        if candidate.exists():
+            return candidate
+
+    return script_path.parent / "src" / "utils" / "data"
+
+
+DEFAULT_DATA_DIR = resolve_default_data_dir()
 
 
 def parse_args() -> argparse.Namespace:
