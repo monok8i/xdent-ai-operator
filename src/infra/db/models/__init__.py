@@ -1,4 +1,5 @@
-from .transcript import Base, Transcript
-from .theme import Base, TranscriptTheme  # noqa: F811
+from .base import Base
+from .transcript import Transcript
+from .theme import TranscriptTheme
 
 __all__ = ("Base", "Transcript", "TranscriptTheme")
