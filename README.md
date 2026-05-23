@@ -1,6 +1,6 @@
-# XDent AI Operator
+# AI Operator
 
-XDent AI Operator is a transcript-backed AI support operator for the XDent hackathon task. It is designed as a first-line support assistant for dental software: the user asks a question in natural language, the system identifies the topic, retrieves relevant evidence from anonymized support transcripts, and returns a short, precise answer.
+AI Operator is a transcript-backed AI support operator for the  hackathon task. It is designed as a first-line support assistant for dental software: the user asks a question in natural language, the system identifies the topic, retrieves relevant evidence from anonymized support transcripts, and returns a short, precise answer.
 
 The project is intentionally built around the backend retrieval stack, not around a chat UI. The frontend exists for demo and verification, but the core value is the technical pipeline behind the answer.
 
@@ -127,7 +127,7 @@ This is useful for the hackathon because the organizers want a technical solutio
 Start PostgreSQL with Docker Compose:
 
 ```bash
-docker compose up -d xdent-db
+docker compose up -d -db
 ```
 
 ### Backend
@@ -155,10 +155,10 @@ pnpm dev
 
 The full local stack includes:
 
-- `xdent-db` for PostgreSQL + pgvector
-- `xdent-api` for the HTTP backend
-- `xdent-mcp` for the MCP server
-- `xdent-frontend` for the demo UI
+- `-db` for PostgreSQL + pgvector
+- `-api` for the HTTP backend
+- `-mcp` for the MCP server
+- `-frontend` for the demo UI
 
 Run everything with:
 
