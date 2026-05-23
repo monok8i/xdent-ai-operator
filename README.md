@@ -9,6 +9,20 @@ The project exposes two MCP tools through `src/mcp/server.py`:
 
 Both tools reuse the same repository and dependency wiring as the FastAPI application, so they read from the same database and embedding client.
 
+## AI answer endpoint
+
+The backend also exposes a transcript-backed AI answer endpoint:
+
+- `POST /api/v1/answer` accepts only `prompt` and returns only `message`.
+
+The endpoint first selects the best transcript theme, then searches transcripts inside that theme, and finally asks the AI model to generate the final response from the prompt plus retrieved transcript excerpts.
+
+Required AI settings:
+
+- `AI_API_KEY` or `OPENAI_API_KEY`
+- `AI_MODEL` or `OPENAI_MODEL`
+- `AI_BASE_URL` or `OPENAI_BASE_URL`
+
 ## Run FastAPI and MCP together
 
 Use two terminals so each process can run independently:

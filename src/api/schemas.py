@@ -30,6 +30,18 @@ class TranscriptSearchResponse(BaseModel):
     results: list[TranscriptSearchHit]
 
 
+class AnswerRequest(BaseModel):
+    """Request payload for AI answer generation."""
+
+    prompt: str = Field(..., min_length=1)
+
+
+class AnswerResponse(BaseModel):
+    """Response payload for AI answer generation."""
+
+    message: str
+
+
 class Theme(BaseModel):
     """A single transcript theme."""
 

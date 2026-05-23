@@ -8,11 +8,14 @@ from starlette.requests import HTTPConnection
 if TYPE_CHECKING:
     from sqlalchemy.ext.asyncio import AsyncSession
     from src.core.config._global import Config as ProjectConfig
+    from src.infra.ai.client import AIClient
     from src.infra.embeddings.client import SentenceTransformerEmbeddingClient
 
+from src.infra.ai.client import AIClient
 from src.infra.db.repository import TranscriptRepository
 from src.infra.db.session import get_async_session
 
+from src.service.answer import AnswerService
 from src.service.search import SearchService
 
 
@@ -42,6 +45,12 @@ def get_embedding_client(
     """
 
     return connection.app.state.embedding_client
+
+
+def get_ai_client(connection: HTTPConnection) -> "AIClient":
+    """Return the shared AI client stored on app state."""
+
+    return connection.app.state.ai_client
 
 
 async def get_db(config: "ProjectConfig" = Depends(get_config)):
@@ -80,12 +89,29 @@ def search_service(
     return SearchService(embedding_client=embedding_client, repository=repository)
 
 
+def answer_service(
+    ai_client: "AIClient" = Depends(get_ai_client),
+    repository: TranscriptRepository = Depends(get_transcript_repository),
+    search_service: SearchService = Depends(search_service),
+) -> AnswerService:
+    """Create the service that generates AI answers from transcripts."""
+
+    return AnswerService(
+        ai_client=ai_client,
+        repository=repository,
+        search_service=search_service,
+    )
+
+
 EmbeddingClientDependency = Annotated[
     "SentenceTransformerEmbeddingClient", Depends(get_embedding_client)
 ]
 
 
 SearchServiceDependency = Annotated[SearchService, Depends(search_service)]
+
+
+AnswerServiceDependency = Annotated[AnswerService, Depends(answer_service)]
 
 
 TranscriptRepositoryDependency = Annotated[

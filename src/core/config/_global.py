@@ -7,6 +7,7 @@ instance.
 
 from functools import cached_property
 
+from src.infra.ai.config import Config as AIConfig
 from src.infra.embeddings.config import Config as EmbeddingsConfig
 from src.infra.db.config import Config as DBConfig
 from src.api.config import Config as APIConfig
@@ -47,6 +48,16 @@ class Config:
         """
 
         return EmbeddingsConfig()  # type: ignore
+
+    @cached_property
+    def ai(self) -> AIConfig:
+        """Return the configuration used by the AI answer client.
+
+        Returns:
+            AI configuration object.
+        """
+
+        return AIConfig()  # type: ignore
 
     @cached_property
     def db(self) -> DBConfig:
