@@ -12,8 +12,10 @@ if TYPE_CHECKING:
     from src.infra.embeddings.client import SentenceTransformerEmbeddingClient
 
 from src.infra.ai.client import AIClient
+from src.infra.db import QuestionAnswerLogRepository
 from src.infra.db.repository import TranscriptRepository
 from src.infra.db.session import get_async_session
+from src.service import QaLogExportService
 from src.service.transcript import TranscriptImportService
 
 from src.service.answer import AnswerService
@@ -79,6 +81,14 @@ def get_transcript_repository(
     return TranscriptRepository(session=session)
 
 
+def get_qa_log_repository(
+    session: "AsyncSession" = Depends(get_db),
+) -> QuestionAnswerLogRepository:
+    """Create the repository used for exporting QA audit logs."""
+
+    return QuestionAnswerLogRepository(session=session)
+
+
 def search_service(
     embedding_client: "SentenceTransformerEmbeddingClient" = Depends(
         get_embedding_client
@@ -118,6 +128,14 @@ def transcript_import_service(
     )
 
 
+def qa_log_export_service(
+    repository: QuestionAnswerLogRepository = Depends(get_qa_log_repository),
+) -> QaLogExportService:
+    """Create the service that exports QA audit logs."""
+
+    return QaLogExportService(repository=repository)
+
+
 EmbeddingClientDependency = Annotated[
     "SentenceTransformerEmbeddingClient", Depends(get_embedding_client)
 ]
@@ -134,6 +152,16 @@ TranscriptRepositoryDependency = Annotated[
 ]
 
 
+QuestionAnswerLogRepositoryDependency = Annotated[
+    QuestionAnswerLogRepository, Depends(get_qa_log_repository)
+]
+
+
 TranscriptImportServiceDependency = Annotated[
     TranscriptImportService, Depends(transcript_import_service)
+]
+
+
+QaLogExportServiceDependency = Annotated[
+    QaLogExportService, Depends(qa_log_export_service)
 ]

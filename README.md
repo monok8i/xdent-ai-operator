@@ -4,7 +4,7 @@ XDent AI Operator is a transcript-backed RAG system for support workflows. It co
 
 The core idea is simple: transcripts are imported into the database, embedded once, and then reused through two delivery paths.
 
-1. The HTTP API powers the web app and the direct AI answer flow.
+1. The HTTP API powers the web app, the direct AI answer flow, and the QA audit export.
 2. The MCP server exposes the same transcript search and theme discovery tools to MCP-capable clients.
 
 ## What Is Inside
@@ -41,10 +41,13 @@ The API is the path used by the web app and by direct integrations.
 - `GET /api/v1/transcripts?theme_id=&prompt=&limit=&max_distance=` searches transcripts inside a theme.
 - `POST /api/v1/transcripts` imports transcript JSON with `multipart/form-data` using `theme_name` and `file`.
 - `POST /api/v1/answer` accepts a single `prompt` and returns a single `message`.
+- `GET /api/v1/qa-logs/export` exports the stored QA audit trail as a CSV attachment.
 
 The answer endpoint does the full RAG flow for you: it selects the best theme, retrieves the most relevant transcript excerpts, and asks the AI model to produce the final answer.
 
 The import endpoint and the CLI importer now share the same backend service, so JSON upload behavior matches local ingestion behavior.
+
+Every answer is also written to the QA audit log table, which gives you a reproducible trail of prompts and generated answers for demos, debugging, and follow-up analysis.
 
 ### 2. MCP Server
 
@@ -62,7 +65,8 @@ This is the better path when you want the data as a reusable toolset inside anot
 3. Ask a question in the chat UI or call the API directly.
 4. The backend searches transcripts using vector similarity.
 5. The answer service builds a context window from the best matches and generates the final response.
-6. The same retrieval logic is also available through MCP.
+6. The generated prompt/answer pair is stored in the QA audit log table.
+7. The same retrieval logic is also available through MCP, and the audit trail can be exported as CSV when needed.
 
 ## Repository Layout
 
@@ -171,6 +175,25 @@ docker compose up --build
 ## Notes On The AI Answer Flow
 
 The backend answer service is intentionally conservative. It uses the transcript excerpts as the source of truth, keeps the final answer short, and returns only the generated text. That makes the API predictable for product use and keeps the MCP tools focused on retrieval.
+
+The QA audit log gives you traceability without coupling it to the answer path. This keeps the critical response flow simple while still making the generated outputs easy to inspect later.
+
+## Logging And Export
+
+The backend writes one QA audit row after each successful answer. You can export those records with:
+
+```bash
+GET /api/v1/qa-logs/export
+```
+
+Optional query parameters:
+
+- `limit` controls how many rows are exported.
+- `offset` lets you page through older records.
+
+The response is a CSV attachment with `id`, `created_at`, `prompt`, and `answer` columns.
+
+The export flow follows the same architecture principle as the rest of the backend: the endpoint stays thin, the repository handles persistence, and the service owns the export formatting logic.
 
 ## Development Tips
 
