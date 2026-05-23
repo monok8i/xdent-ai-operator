@@ -47,5 +47,5 @@ The repository also ships with separate Docker services for the API and MCP serv
 Bring both up with:
 
 ```bash
-docker compose up --build xdent-backend xdent-mcp xdent-backend-db
+docker compose up --build
 ```
