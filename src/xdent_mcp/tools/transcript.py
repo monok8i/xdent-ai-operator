@@ -12,7 +12,7 @@ async def search_transcripts(
     theme_id: int,
     prompt: str,
     limit: int | None = 10,
-    max_distance: float | None = None,
+    max_distance: float | None = 0.4,
 ) -> dict[str, object]:
     """Search transcripts by theme and prompt."""
 
