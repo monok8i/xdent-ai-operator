@@ -9,19 +9,19 @@ interface ExamplePromptsProps {
 const EXAMPLE_PROMPTS = [
   {
     label: "eRecept",
-    prompt: "How do I check why eRecept is not working?",
+    prompt: "Jak zjistím, proč eRecept nefunguje?",
   },
   {
-    label: "Certificates",
-    prompt: "What should I verify when a certificate is invalid?",
+    label: "Certifikáty",
+    prompt: "Co mám ověřit, když je certifikát neplatný?",
   },
   {
-    label: "Integration",
-    prompt: "How do I troubleshoot an integration issue with the external system?",
+    label: "Integrace",
+    prompt: "Jak vyřeším problém s integrací s externím systémem?",
   },
   {
     label: "VZP",
-    prompt: "What is the recommended workflow for VZP-related support?",
+    prompt: "Jaký je doporučený postup pro podporu související s VZP?",
   },
 ];
 
@@ -30,7 +30,7 @@ export function ExamplePrompts({ onSelectPrompt }: ExamplePromptsProps) {
     <div className="space-y-3">
       <div className="flex items-center gap-2 text-muted-foreground">
         <Lightbulb className="h-4 w-4" />
-        <span className="text-xs font-medium uppercase tracking-wide">Try asking</span>
+        <span className="text-xs font-medium uppercase tracking-wide">Zkuste se zeptat</span>
       </div>
       <div className="grid grid-cols-1 gap-2">
         {EXAMPLE_PROMPTS.map((example) => (

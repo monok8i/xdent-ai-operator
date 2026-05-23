@@ -55,7 +55,7 @@ export default function Home() {
         }
       } catch (err) {
         setThemesError(
-          err instanceof Error ? err.message : "Failed to load themes"
+          err instanceof Error ? err.message : "Nepodařilo se načíst témata"
         );
       } finally {
         setThemesLoading(false);
@@ -76,7 +76,7 @@ export default function Home() {
         setTranscripts(response.results);
       } catch (err) {
         setTranscriptsError(
-          err instanceof Error ? err.message : "Failed to load transcripts"
+          err instanceof Error ? err.message : "Nepodařilo se načíst přepisy"
         );
       } finally {
         setTranscriptsLoading(false);
@@ -117,7 +117,7 @@ export default function Home() {
       setChatError(
         err instanceof Error
           ? err.message
-          : "Failed to get response. Please check if the API is running."
+          : "Nepodařilo se získat odpověď. Zkontrolujte prosím, zda běží API."
       );
     } finally {
       setIsGenerating(false);
@@ -145,7 +145,7 @@ export default function Home() {
                 XDent RAG
               </h1>
               <p className="text-sm text-muted-foreground">
-                Transcript-backed answers powered by live RAG retrieval
+                Odpovědi založené na přepisech, poháněné živým RAG vyhledáváním
               </p>
             </div>
           </div>
@@ -162,20 +162,20 @@ export default function Home() {
               <div className="flex items-center gap-2 mb-3">
                 <Zap className="h-4 w-4 text-primary" />
                 <h2 className="text-sm font-semibold text-foreground">
-                  How it works
+                  Jak to funguje
                 </h2>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Ask questions about medical office support. The system retrieves
-                matching call transcripts using semantic search, then generates
-                contextual answers based on real support interactions.
+                Ptejte se na podporu lékařské ordinace. Systém pomocí sémantického
+                vyhledávání najde odpovídající přepisy hovorů a poté vytvoří
+                kontextové odpovědi založené na skutečných podpůrných interakcích.
               </p>
             </div>
 
             {/* Theme Selector */}
             <div className="rounded-xl border border-border bg-card p-4">
               <h2 className="text-sm font-semibold text-foreground mb-3">
-                Themes
+                Témata
               </h2>
               <ThemeSelector
                 themes={themes}
@@ -193,18 +193,18 @@ export default function Home() {
           </aside>
 
           {/* Center - Chat Area */}
-          <section className="lg:col-span-6 flex flex-col min-h-[600px]">
+          <section className="lg:col-span-6 flex flex-col min-h-150">
             <div className="flex-1 rounded-xl border border-border bg-card overflow-hidden flex flex-col">
               {/* Chat Header */}
               <div className="border-b border-border px-4 py-3 bg-card">
                 <div className="flex items-center gap-2">
                   <MessageSquare className="h-4 w-4 text-primary" />
                   <span className="text-sm font-medium text-foreground">
-                    Chat
+                    Konverzace
                   </span>
                   {messages.length > 0 && (
                     <span className="text-xs text-muted-foreground">
-                      ({messages.length} messages)
+                      ({messages.length} zpráv)
                     </span>
                   )}
                 </div>
@@ -219,12 +219,12 @@ export default function Home() {
                       <Database className="h-8 w-8 text-primary" />
                     </div>
                     <h3 className="text-lg font-semibold text-foreground mb-2">
-                      Start a conversation
+                      Začněte konverzaci
                     </h3>
                     <p className="text-sm text-muted-foreground max-w-sm mb-6">
-                      Ask a question about medical office support workflows.
-                      Your query will be matched against real support call
-                      transcripts using RAG retrieval.
+                      Položte otázku k pracovním postupům podpory lékařské
+                      ordinace. Váš dotaz bude porovnán se skutečnými přepisy
+                      podpůrných hovorů pomocí RAG vyhledávání.
                     </p>
                     <div className="flex flex-wrap gap-2 justify-center">
                       {["eRecept", "Certificates", "VZP", "Integrations"].map(
@@ -241,7 +241,7 @@ export default function Home() {
                   </div>
                 ) : (
                   /* Messages List */
-                  <ScrollArea className="h-[400px]">
+                  <ScrollArea className="h-100">
                     <div className="px-4">
                       {messages.map((message) => (
                         <ChatMessage
@@ -269,7 +269,7 @@ export default function Home() {
                     <AlertCircle className="h-4 w-4 text-destructive shrink-0 mt-0.5" />
                     <div>
                       <p className="text-sm text-destructive font-medium">
-                        Error
+                        Chyba
                       </p>
                       <p className="text-xs text-destructive/80">{chatError}</p>
                     </div>
@@ -294,11 +294,11 @@ export default function Home() {
               <div className="flex items-center gap-2 mb-4">
                 <Database className="h-4 w-4 text-primary" />
                 <h2 className="text-sm font-semibold text-foreground">
-                  RAG Trace
+                  RAG stopa
                 </h2>
                 {transcripts.length > 0 && (
                   <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded">
-                    {transcripts.length} hits
+                    {transcripts.length} zásahů
                   </span>
                 )}
               </div>
@@ -318,7 +318,7 @@ export default function Home() {
       <footer className="border-t border-border mt-12">
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <p className="text-xs text-muted-foreground text-center">
-            XDent RAG Demo • Healthcare Knowledge Assistant • Connected to{" "}
+            XDent RAG Demo • Asistent znalostí pro zdravotnictví • Připojeno k{" "}
             <code className="text-primary bg-primary/10 px-1 rounded">
               {process.env.NEXT_PUBLIC_API_URL || "localhost:8000"}
             </code>

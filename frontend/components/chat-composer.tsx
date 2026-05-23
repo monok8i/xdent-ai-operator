@@ -45,8 +45,8 @@ export function ChatComposer({ onSubmit, isLoading, initialValue = "" }: ChatCom
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask about medical office support workflows..."
-          className="min-h-[80px] max-h-[200px] resize-none border-0 bg-transparent px-4 py-3 pr-14 text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+          placeholder="Zeptejte se na pracovní postupy podpory lékařské ordinace..."
+          className="min-h-20 max-h-50 resize-none border-0 bg-transparent px-4 py-3 pr-14 text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
           disabled={isLoading}
         />
         <Button
@@ -63,7 +63,7 @@ export function ChatComposer({ onSubmit, isLoading, initialValue = "" }: ChatCom
         </Button>
       </div>
       <p className="mt-2 text-xs text-muted-foreground text-center">
-        Press Enter to send, Shift + Enter for a new line
+        Stiskněte Enter pro odeslání, Shift + Enter pro nový řádek
       </p>
     </form>
   );

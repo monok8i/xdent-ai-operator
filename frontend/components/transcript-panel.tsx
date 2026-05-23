@@ -27,7 +27,7 @@ export function TranscriptPanel({
           <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
           <div>
             <p className="text-sm font-medium text-destructive">
-              Failed to load transcripts
+              Nepodařilo se načíst přepisy
             </p>
             <p className="text-xs text-destructive/80 mt-1">{error}</p>
           </div>
@@ -43,7 +43,7 @@ export function TranscriptPanel({
           <Search className="h-5 w-5 text-muted-foreground" />
         </div>
         <p className="text-sm text-muted-foreground">
-          Ask a question to see transcript matches
+          Položte otázku a zobrazí se odpovídající přepisy
         </p>
       </div>
     );
@@ -69,9 +69,9 @@ export function TranscriptPanel({
         <div className="rounded-full bg-muted p-3 mb-3">
           <FileText className="h-5 w-5 text-muted-foreground" />
         </div>
-        <p className="text-sm font-medium text-foreground mb-1">No matches found</p>
+        <p className="text-sm font-medium text-foreground mb-1">Nebyly nalezeny žádné shody</p>
         <p className="text-xs text-muted-foreground">
-          No transcripts matched your query within the distance threshold.
+          Žádné přepisy neodpovídají vašemu dotazu v rámci prahu vzdálenosti.
         </p>
       </div>
     );
@@ -81,13 +81,13 @@ export function TranscriptPanel({
     <div className="space-y-1">
       {selectedTheme && (
         <div className="flex items-center gap-2 mb-3 px-1">
-          <span className="text-xs text-muted-foreground">Theme:</span>
+          <span className="text-xs text-muted-foreground">Téma:</span>
           <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded">
             {selectedTheme.name}
           </span>
         </div>
       )}
-      <ScrollArea className="h-[400px] pr-2">
+      <ScrollArea className="h-100 pr-2">
         <div className="space-y-2">
           {transcripts.map((transcript, index) => (
             <div
@@ -104,8 +104,8 @@ export function TranscriptPanel({
                     transcript.distance < 0.2
                       ? "bg-emerald-500/20 text-emerald-400"
                       : transcript.distance < 0.3
-                      ? "bg-amber-500/20 text-amber-400"
-                      : "bg-orange-500/20 text-orange-400"
+                        ? "bg-amber-500/20 text-amber-400"
+                        : "bg-orange-500/20 text-orange-400"
                   )}
                 >
                   {transcript.distance.toFixed(3)}

@@ -44,7 +44,7 @@ export function ThemeSelector({
     return (
       <div className="rounded-lg border border-border bg-card p-3 text-center">
         <Layers className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
-        <p className="text-sm text-muted-foreground">No themes available</p>
+        <p className="text-sm text-muted-foreground">Nejsou k dispozici žádná témata</p>
       </div>
     );
   }

@@ -42,7 +42,7 @@ export function ChatMessage({ role, content, isLoading }: ChatMessageProps) {
               <span className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "150ms" }} />
               <span className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: "300ms" }} />
             </div>
-            <span className="text-sm text-muted-foreground">Generating response...</span>
+            <span className="text-sm text-muted-foreground">Generuje se odpověď...</span>
           </div>
         ) : (
           <p className="text-sm leading-relaxed whitespace-pre-wrap">{content}</p>
