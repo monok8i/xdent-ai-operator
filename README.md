@@ -1,108 +1,138 @@
 # XDent AI Operator
 
-XDent AI Operator is a transcript-backed RAG system for support workflows. It combines a Next.js chat UI, a FastAPI backend, a PostgreSQL database with pgvector, and an MCP server that exposes the same retrieval layer for external clients.
+XDent AI Operator is a transcript-backed AI support operator for the XDent hackathon task. It is designed as a first-line support assistant for dental software: the user asks a question in natural language, the system identifies the topic, retrieves relevant evidence from anonymized support transcripts, and returns a short, precise answer.
 
-The core idea is simple: transcripts are imported into the database, embedded once, and then reused through two delivery paths.
+The project is intentionally built around the backend retrieval stack, not around a chat UI. The frontend exists for demo and verification, but the core value is the technical pipeline behind the answer.
 
-1. The HTTP API powers the web app, the direct AI answer flow, and the QA audit export.
-2. The MCP server exposes the same transcript search and theme discovery tools to MCP-capable clients.
+## What The System Does
 
-## What Is Inside
+- Accepts a natural-language support question.
+- Identifies the relevant topic or theme.
+- Searches transcript knowledge using embeddings and vector similarity.
+- Generates a concise chat-style answer grounded in retrieved context.
+- Falls back safely when the available evidence is not enough.
+- Stores question/answer pairs for later evaluation and export.
+- Exposes the same knowledge layer through both HTTP API and MCP.
 
-- Frontend: Next.js 16, React 19, TypeScript, Tailwind CSS v4, Radix UI, shadcn-style primitives.
-- Backend: Python 3.13, FastAPI, Uvicorn, Pydantic v2, SQLAlchemy async, Alembic, asyncpg.
-- Retrieval: pgvector for similarity search, sentence-transformers for embeddings.
-- AI layer: OpenAI-compatible chat client for theme selection and final answer generation.
-- Tooling: MCP via `mcp` and a FastMCP ASGI server.
-- Infrastructure: Docker Compose for the full local stack.
+## Why This Architecture
 
-## Architecture
+The assignment asks for a system that is fast, clear, technically justified, and grounded in real transcript data. For that reason, the project uses a retrieval-first design:
+
+1. Transcripts are ingested and embedded once.
+2. Retrieval happens against PostgreSQL with pgvector.
+3. The answer service uses the retrieved context to generate a final response.
+4. The same retrieval logic is reused by the web API and the MCP server.
+5. QA audit logs make the system traceable and easier to evaluate.
+
+## Architecture Overview
 
 ```mermaid
 flowchart LR
-	U[User / MCP client] --> F[Next.js frontend]
-	F -->|GET themes| API[FastAPI]
-	F -->|GET transcripts| API
-	F -->|POST answer| API
-	U -->|get_themes / search_transcripts| MCP[MCP server]
-	API --> DB[(PostgreSQL + pgvector)]
-	MCP --> DB
-	API --> LLM[OpenAI-compatible LLM]
-	LLM --> API
+    U[User / evaluator] --> UI[Next.js demo UI]
+    U --> API[FastAPI HTTP API]
+    U --> MCP[MCP server]
+
+    UI --> API
+    API --> SRV[Answer service]
+    API --> TR[Transcript repository]
+    API --> LOG[QA log repository]
+    MCP --> TR
+
+    TR --> DB[(PostgreSQL + pgvector)]
+    SRV --> AI[OpenAI-compatible AI client]
+    AI --> SRV
+    LOG --> DB
 ```
 
-## Two Ways To Use The Data
+## Stack
 
-### 1. HTTP API
+- Frontend: Next.js 16, React 19, TypeScript, Tailwind CSS v4.
+- Backend: Python 3.13, FastAPI, Uvicorn, Pydantic v2, SQLAlchemy async, Alembic.
+- Retrieval: PostgreSQL + pgvector, asyncpg, sentence-transformers.
+- AI layer: OpenAI-compatible chat client for topic selection and final answer generation.
+- Tooling: MCP server for external agentic clients.
+- Observability: QA audit logging and CSV export.
 
-The API is the path used by the web app and by direct integrations.
+## Main Data Flows
 
-- `GET /api/v1/themes` returns the available transcript themes.
-- `GET /api/v1/transcripts?theme_id=&prompt=&limit=&max_distance=` searches transcripts inside a theme.
-- `POST /api/v1/transcripts` imports transcript JSON with `multipart/form-data` using `theme_name` and `file`.
-- `POST /api/v1/answer` accepts a single `prompt` and returns a single `message`.
-- `GET /api/v1/qa-logs/export` exports the stored QA audit trail as a CSV attachment.
+### 1. Answer Flow
 
-The answer endpoint does the full RAG flow for you: it selects the best theme, retrieves the most relevant transcript excerpts, and asks the AI model to produce the final answer.
+1. The user sends a question to `POST /api/v1/answer`.
+2. The backend selects the most relevant theme.
+3. The system retrieves the best transcript excerpts for that theme.
+4. The AI model generates a short answer based only on the retrieved context.
+5. The prompt and answer are written to the QA audit log table.
 
-The import endpoint and the CLI importer now share the same backend service, so JSON upload behavior matches local ingestion behavior.
+### 2. Transcript Retrieval Flow
 
-Every answer is also written to the QA audit log table, which gives you a reproducible trail of prompts and generated answers for demos, debugging, and follow-up analysis.
+- `GET /api/v1/themes` returns the available topic list.
+- `GET /api/v1/transcripts` searches transcript snippets by theme and prompt.
+- This flow is used by the frontend and can also be called directly.
 
-### 2. MCP Server
+### 3. MCP Flow
 
-The MCP server exposes the same knowledge layer as tools for external MCP clients.
+- `get_themes` exposes theme discovery to MCP clients.
+- `search_transcripts` exposes the retrieval layer to MCP clients.
+- The MCP server uses the same repository and embedding logic as the HTTP API.
 
-- `get_themes` returns all available themes.
-- `search_transcripts` searches within a specific theme using the user prompt.
+### 4. QA Log Export Flow
 
-This is the better path when you want the data as a reusable toolset inside another agent or MCP-enabled application.
+- `GET /api/v1/qa-logs/export` downloads the stored QA audit trail as CSV.
+- This is useful for evaluation, debugging, and demo analysis.
 
-## Workflow
+## API Surface
 
-1. Import transcript JSON files into PostgreSQL with embeddings through the CLI importer or the HTTP upload endpoint.
-2. Browse themes in the frontend.
-3. Ask a question in the chat UI or call the API directly.
-4. The backend searches transcripts using vector similarity.
-5. The answer service builds a context window from the best matches and generates the final response.
-6. The generated prompt/answer pair is stored in the QA audit log table.
-7. The same retrieval logic is also available through MCP, and the audit trail can be exported as CSV when needed.
+### HTTP API
 
-## Repository Layout
+- `GET /api/v1/themes`
+- `GET /api/v1/transcripts?theme_id=&prompt=&limit=&max_distance=`
+- `POST /api/v1/transcripts` for importing transcript JSON via `multipart/form-data`
+- `POST /api/v1/answer`
+- `GET /api/v1/qa-logs/export`
 
-- `backend/` contains the FastAPI app, MCP server, database models, migration files, and shared transcript import service.
-- `frontend/` contains the Next.js app and UI components.
-- `docker-compose.yml` starts the database, backend, MCP server, and frontend together.
+### MCP Server
+
+- `get_themes`
+- `search_transcripts`
+
+## Core Engineering Principles
+
+- Keep endpoints thin.
+- Put persistence logic in repositories.
+- Put orchestration and formatting logic in services.
+- Reuse the same retrieval layer across API and MCP.
+- Prefer grounded answers over speculative answers.
+- Use fallback behavior when the system does not have enough evidence.
+- Keep interaction concise and directly useful.
+
+## Transcript Ingestion
+
+Transcripts can be imported in two ways:
+
+- CLI import from the local JSON dataset.
+- HTTP upload of a `Transcripts.json` file with a `theme_name` form field.
+
+During ingestion, the system normalizes transcript text, generates embeddings, stores themes and transcripts in PostgreSQL, and makes the data available for retrieval.
+
+## Logging And Evaluation
+
+The backend writes QA audit rows after successful answers. This gives the team a reproducible trace of what was asked and what was returned. The export endpoint turns that log into CSV so it can be reviewed during evaluation.
+
+This is useful for the hackathon because the organizers want a technical solution that can be evaluated against test scenarios, not just a nice chat demo.
 
 ## Local Setup
 
-### 1. Start PostgreSQL
+### Database
 
-The simplest path is Docker Compose:
+Start PostgreSQL with Docker Compose:
 
 ```bash
 docker compose up -d xdent-db
 ```
 
-### 2. Import transcripts
+### Backend
 
-From the `backend/` directory:
-
-```bash
-uv run python load_transcripts.py
-```
-
-You can also point the importer at a custom dataset:
-
-```bash
-uv run python load_transcripts.py --data-dir src/utils/data
-```
-
-If you prefer HTTP ingestion, upload a `Transcripts.json` file to `POST /api/v1/transcripts` with a `theme_name` form field.
-
-### 3. Run the backend services
-
-Open two terminals in `backend/`:
+From `backend/`:
 
 ```bash
 uv run python main.py api
@@ -112,9 +142,7 @@ uv run python main.py api
 uv run python main.py mcp
 ```
 
-The first command starts the HTTP API. The second command starts the MCP server as an HTTP app backed by FastMCP.
-
-### 4. Run the frontend
+### Frontend
 
 From `frontend/`:
 
@@ -123,18 +151,16 @@ pnpm install
 pnpm dev
 ```
 
-By default the frontend expects the API at `http://localhost:8000`. Override it with `NEXT_PUBLIC_API_URL` if needed.
+## Docker Stack
 
-## Docker Compose Stack
+The full local stack includes:
 
-The repository ships with a complete local stack:
+- `xdent-db` for PostgreSQL + pgvector
+- `xdent-api` for the HTTP backend
+- `xdent-mcp` for the MCP server
+- `xdent-frontend` for the demo UI
 
-- `xdent-db` runs PostgreSQL with pgvector.
-- `xdent-api` runs the FastAPI backend.
-- `xdent-mcp` runs the MCP server on port `8001`.
-- `xdent-frontend` runs the Next.js app on port `3000`.
-
-Start everything with:
+Run everything with:
 
 ```bash
 docker compose up --build
@@ -172,31 +198,14 @@ docker compose up --build
 
 - `HF_TOKEN`
 
-## Notes On The AI Answer Flow
+## Notes On Answering Behavior
 
-The backend answer service is intentionally conservative. It uses the transcript excerpts as the source of truth, keeps the final answer short, and returns only the generated text. That makes the API predictable for product use and keeps the MCP tools focused on retrieval.
+The assistant is intentionally short and factual. It should not “talk a lot” to the user. When the evidence is weak, it should be conservative, surface the limitation, and recommend the next step instead of inventing details.
 
-The QA audit log gives you traceability without coupling it to the answer path. This keeps the critical response flow simple while still making the generated outputs easy to inspect later.
+## What This Repo Is Optimized For
 
-## Logging And Export
-
-The backend writes one QA audit row after each successful answer. You can export those records with:
-
-```bash
-GET /api/v1/qa-logs/export
-```
-
-Optional query parameters:
-
-- `limit` controls how many rows are exported.
-- `offset` lets you page through older records.
-
-The response is a CSV attachment with `id`, `created_at`, `prompt`, and `answer` columns.
-
-The export flow follows the same architecture principle as the rest of the backend: the endpoint stays thin, the repository handles persistence, and the service owns the export formatting logic.
-
-## Development Tips
-
-- Use the API when you want the system to answer a question end-to-end.
-- Use MCP when you want another agent or client to inspect themes and retrieve transcript evidence directly.
-- Keep the database and embeddings in sync by re-running the transcript import when the source JSON changes.
+- Transcript-backed support QA.
+- Fast retrieval over real support data.
+- Technical demos and hackathon evaluation.
+- Clear separation between ingestion, retrieval, orchestration, and export.
+- Reusable knowledge access through both HTTP and MCP.
