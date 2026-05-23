@@ -1,0 +1,36 @@
+{
+  "output_shape": "simple_grouped_qa",
+  "groups": 8,
+  "total_qa_pairs": 80,
+  "qa_pairs_per_group": {
+    "calendar-scheduling-booking": 10,
+    "certificate-authentication-setup": 10,
+    "erecept": 10,
+    "feature-requests-usability": 10,
+    "how-to-product-navigation": 10,
+    "integrations": 10,
+    "printing-templates-documents": 10,
+    "vzp": 10
+  },
+  "validation": {
+    "json_valid": true,
+    "markdown_written": true,
+    "only_group_question_answer_fields": true,
+    "installation_setup_removed": true,
+    "groups": 8,
+    "total_qa_pairs": 80,
+    "all_groups_have_10": true,
+    "shape_only_group_question_answer": true,
+    "installation_setup_references": 0,
+    "sensitive_counts": {
+      "email": 0,
+      "url": 0,
+      "long_digit": 0,
+      "redacted_token": 0,
+      "selected_profanity": 0
+    },
+    "readable_markdown_format": true,
+    "markdown_dividers_per_question": true,
+    "markdown_question_count": 80
+  }
+}

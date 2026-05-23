@@ -1,0 +1,18 @@
+[project]
+name = "what-now"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "alembic>=1.18.4",
+    "asyncpg>=0.31.0",
+    "fastapi[standard]>=0.135.1",
+    "mcp>=1.27.1",
+    "pgvector>=0.4.2",
+    "pydantic>=2.12.5",
+    "pydantic-settings>=2.13.1",
+    "sentence-transformers>=4.1.0",
+    "sqlalchemy[asyncio]>=2.0.48",
+    "uvicorn>=0.41.0",
+]
