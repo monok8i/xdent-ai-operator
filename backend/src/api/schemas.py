@@ -30,6 +30,14 @@ class TranscriptSearchResponse(BaseModel):
     results: list[TranscriptSearchHit]
 
 
+class TranscriptImportResponse(BaseModel):
+    """Response payload for transcript import requests."""
+
+    theme_name: str
+    created: int
+    skipped: int
+
+
 class AnswerRequest(BaseModel):
     """Request payload for AI answer generation."""
 

@@ -14,6 +14,7 @@ if TYPE_CHECKING:
 from src.infra.ai.client import AIClient
 from src.infra.db.repository import TranscriptRepository
 from src.infra.db.session import get_async_session
+from src.service.transcript import TranscriptImportService
 
 from src.service.answer import AnswerService
 from src.service.search import SearchService
@@ -103,6 +104,20 @@ def answer_service(
     )
 
 
+def transcript_import_service(
+    embedding_client: "SentenceTransformerEmbeddingClient" = Depends(
+        get_embedding_client
+    ),
+    session: "AsyncSession" = Depends(get_db),
+) -> TranscriptImportService:
+    """Create the service that imports transcript JSON payloads."""
+
+    return TranscriptImportService(
+        session=session,
+        embedding_client=embedding_client,
+    )
+
+
 EmbeddingClientDependency = Annotated[
     "SentenceTransformerEmbeddingClient", Depends(get_embedding_client)
 ]
@@ -116,4 +131,9 @@ AnswerServiceDependency = Annotated[AnswerService, Depends(answer_service)]
 
 TranscriptRepositoryDependency = Annotated[
     TranscriptRepository, Depends(get_transcript_repository)
+]
+
+
+TranscriptImportServiceDependency = Annotated[
+    TranscriptImportService, Depends(transcript_import_service)
 ]
